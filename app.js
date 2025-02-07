@@ -14,15 +14,15 @@ expressApp.use(bodyParser.urlencoded({ extended: true }));
 expressApp.use(corsConfiguration);
 
 expressApp.get("/hello", (req, res, next) => {
-	res.status(200).send({ message: "Hello world!" });
+  res.status(200).send({ message: "Hello world!" });
 });
 
 expressApp.post("/demo", (req, res, next) => {
-	const body = req.body;
+  const body = req.body;
 
-	console.log(body);
+  console.log(body);
 
-	res.status(201).send({ message: "All good!" });
+  res.status(201).send({ message: "All good!" });
 });
 
 expressApp.use("/auth", authRoutes);
@@ -30,10 +30,10 @@ expressApp.use("/oliveTreesHarvests", oliveTreesHarvestRoutes);
 expressApp.use("/oliveMillings", oliveMillingsRoutes);
 
 expressApp.use((error, req, res, next) => {
-	const status = error.statusCode || 500;
-	const message = error.message;
+  const status = error.statusCode || 500;
+  const message = error.message;
 
-	res.status(status).json({ message: message });
+  res.status(status).json({ message: message });
 });
 
 module.exports = expressApp;
