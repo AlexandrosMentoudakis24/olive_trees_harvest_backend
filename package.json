@@ -1,0 +1,25 @@
+{
+  "name": "olive_trees_harvest_backend",
+  "version": "1.0.0",
+  "description": "This is the back end for the olive trees harvest mobile application.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Alexandros Mentoudakis",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.7",
+    "nodemon": "^3.1.9"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
