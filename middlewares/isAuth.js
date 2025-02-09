@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
 	let decodedToken;
 
 	try {
-		decodedToken = jwt.verify(token, process.env.JSONWEBTOKENSECRETKEY);
+		decodedToken = jwt.verify(token, process.env.JSON_WEB_TOKEN_SECRET_KEY);
 	} catch (err) {
 		console.log(err);
 		err.statusCode = 500;

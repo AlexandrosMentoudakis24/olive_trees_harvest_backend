@@ -7,11 +7,11 @@ const serverPort = 8080;
 require("dotenv").config();
 
 initMongoDB().then((isDBInitialized) => {
-  if (!isDBInitialized) {
-    process.exit(1);
-  }
+	if (!isDBInitialized) {
+		process.exit(1);
+	}
 
-  app.listen(serverPort, () => {
-    console.log("Server is running on Port: ", serverPort);
-  });
+	app.listen(serverPort, () => {
+		console.log("Server is running on Port: ", serverPort);
+	});
 });
