@@ -66,12 +66,12 @@ const oliveTreesHarvestSchema = new mongoose.Schema(
 	{
 		autoCreate: false,
 		toJSON: {
-			virtuals: true, // Ensures virtuals are included
+			virtuals: true,
 			transform: function (_, ret) {
-				ret.id = ret._id.toString(); // Convert ObjectId to string and assign to `id`
+				ret.id = ret._id.toString();
 
-				delete ret._id; // Remove original `_id`
-				delete ret.__v; // Remove version key
+				delete ret._id;
+				delete ret.__v;
 			},
 		},
 		toObject: {

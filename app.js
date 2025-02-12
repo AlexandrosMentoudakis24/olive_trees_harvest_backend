@@ -4,8 +4,12 @@ const bodyParser = require("body-parser");
 const expressApp = express();
 
 const authRoutes = require("./routes/auth/auth");
+
 const oliveTreesHarvestRoutes = require("./routes/olive_trees_harvest/olive_trees_harvest");
+
+const oliveTreesExpensesRoutes = require("./routes/olive_trees_harvest/olive_trees_expense");
 const oliveMillingsRoutes = require("./routes/olive_trees_harvest/olive_milling");
+
 const corsConfiguration = require("./middlewares/cors_configuration");
 
 expressApp.use(bodyParser.json({ limit: "100mb" }));
@@ -26,7 +30,11 @@ expressApp.post("/demo", (req, res, next) => {
 });
 
 expressApp.use("/auth", authRoutes);
+
 expressApp.use("/oliveTreesHarvests", oliveTreesHarvestRoutes);
+
+expressApp.use("/oliveTreesExpenses", oliveTreesExpensesRoutes);
+
 expressApp.use("/oliveMillings", oliveMillingsRoutes);
 
 expressApp.use((error, req, res, next) => {
