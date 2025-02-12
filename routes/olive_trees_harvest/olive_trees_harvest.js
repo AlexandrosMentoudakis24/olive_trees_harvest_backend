@@ -17,4 +17,16 @@ router.post(
 	oliveTreesHarvestController.addNewOliveTreesHarvest,
 );
 
+router.put(
+	"/updateOliveTreesHarvest",
+	isAuth,
+	oliveTreesHarvestController.updateSingleOliveTreesHarvest,
+);
+
+router.delete(
+	"/deleteOliveTreesHarvest/:userId/:harvestId",
+	isAuth,
+	oliveTreesHarvestController.deleteSingleOliveTreesHarvest,
+);
+
 module.exports = router;

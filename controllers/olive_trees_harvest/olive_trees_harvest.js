@@ -1,46 +1,113 @@
 const {
-  OliveTreesHarvestModel,
+	OliveTreesHarvestModel,
 } = require("../../models/olive_trees_harvest/olive_trees_harvest");
 const { User } = require("../../models/user");
+const { login } = require("../auth/auth");
 
 exports.getOliveTreesHarvests = async (req, res, next) => {
-  const { userId } = req.params;
+	const { userId } = req.params;
 
-  try {
-    const user = await User.findById(userId);
+	try {
+		const user = await User.findById(userId);
 
-    if (!user) {
-      throw new Error("Failed to find User.");
-    }
+		if (!user) {
+			throw new Error("Failed to find User.");
+		}
 
-    res.send({
-      message: "Fetched data successfully!",
-      oliveTreesHarvests: user.oliveTreesHarvests,
-    });
-  } catch (err) {
-    console.log(err);
-    next(err);
-  }
+		const response = {
+			message: "Fetched data successfully!",
+			oliveTreesHarvests: user.oliveTreesHarvests,
+		};
+
+		res.status(200).send(response);
+	} catch (err) {
+		next(err);
+	}
 };
 
 exports.addNewOliveTreesHarvest = async (req, res, next) => {
-  const { userId, title } = req.body;
+	const { userId, title } = req.body;
 
-  try {
-    const user = await User.findById(userId);
+	try {
+		const user = await User.findById(userId);
 
-    const newOliveTreesHarvest = new OliveTreesHarvestModel({ title });
+		const newOliveTreesHarvest = new OliveTreesHarvestModel({ title });
 
-    user.oliveTreesHarvests.push(newOliveTreesHarvest);
+		user.oliveTreesHarvests.push(newOliveTreesHarvest);
 
-    await user.save();
-    res.send({
-      message: "Olive Trees Harvest added!",
-      oliveTreesHarvest: newOliveTreesHarvest,
-    });
-  } catch (err) {
-    err.message = "Failed to find User!";
+		await user.save();
 
-    next(err);
-  }
+		const response = {
+			message: "Olive Trees Harvest added!",
+			oliveTreesHarvest: newOliveTreesHarvest,
+		};
+
+		res.status(201).send(response);
+	} catch (err) {
+		err.message = "Failed to find User!";
+
+		next(err);
+	}
+};
+
+exports.deleteSingleOliveTreesHarvest = async (req, res, next) => {
+	const { userId, harvestId } = req.params;
+
+	try {
+		const user = await User.findById(userId);
+
+		if (!user) {
+			throw new Error();
+		}
+
+		const foundHarvest = user.oliveTreesHarvests.id(harvestId);
+
+		if (!foundHarvest) {
+			throw new Error();
+		}
+
+		foundHarvest.deleteOne();
+
+		await user.save();
+
+		const response = {
+			message: "Olive Trees Harvest deleted.",
+		};
+
+		res.status(200).send(response);
+	} catch (err) {
+		next(err);
+	}
+};
+
+exports.updateSingleOliveTreesHarvest = async (req, res, next) => {
+	const { userId, harvestId, newHarvestTitle } = req.body;
+
+	try {
+		const user = await User.findById(userId);
+
+		if (!user) {
+			throw new Error();
+		}
+
+		const foundHarvest = user.oliveTreesHarvests.id(harvestId);
+
+		if (!foundHarvest) {
+			throw new Error();
+		}
+
+		foundHarvest.title = newHarvestTitle;
+
+		await user.save();
+
+		const response = {
+			message: "Olive Trees Harvest updated!",
+		};
+
+		res.status(204).send(response);
+	} catch (err) {
+		err.message = "Failed to find User!";
+
+		next(err);
+	}
 };

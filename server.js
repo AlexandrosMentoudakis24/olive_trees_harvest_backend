@@ -1,10 +1,10 @@
+require("dotenv").config();
+
 const app = require("./app");
 
 const { initMongoDB } = require("./services/db");
 
-const serverPort = 8080;
-
-require("dotenv").config();
+const serverPort = process.env.SERVER_CONNECTION_PORT;
 
 initMongoDB().then((isDBInitialized) => {
 	if (!isDBInitialized) {

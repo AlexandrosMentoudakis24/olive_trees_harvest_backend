@@ -49,11 +49,13 @@ exports.login = async (req, res, next) => {
 			},
 		);
 
-		res.status(200).send({
+		const response = {
 			message: "User is authenticated!",
 			token: token,
 			user: user,
-		});
+		};
+
+		res.status(200).send(response);
 	} catch (err) {
 		next(err);
 	}
