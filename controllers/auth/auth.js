@@ -4,94 +4,91 @@ const bcrypt = require("bcrypt");
 const { User } = require("../../models/user");
 
 exports.login = async (req, res, next) => {
-	console.log(req.body);
-	const errors = validationResult(req);
+  const errors = validationResult(req);
 
-	if (!errors.isEmpty()) {
-		const error = new Error(errors.array()[0].msg);
+  if (!errors.isEmpty()) {
+    const error = new Error(errors.array()[0].msg);
 
-		error.statusCode = 422;
+    error.statusCode = 422;
 
-		next(error);
+    next(error);
 
-		return;
-	}
+    return;
+  }
 
-	const { email, password } = req.body;
+  const { email, password } = req.body;
 
-	try {
-		const user = await User.findOne({ email: email });
+  try {
+    const user = await User.findOne({ email: email });
 
-		if (!user) {
-			const error = new Error("This E-Mail does not exist!");
+    if (!user) {
+      const error = new Error("This E-Mail does not exist!");
 
-			error.statusCode = 404;
+      error.statusCode = 404;
 
-			throw error;
-		}
+      throw error;
+    }
 
-		const doPasswordsMatch = await bcrypt.compare(password, user.password);
+    const doPasswordsMatch = await bcrypt.compare(password, user.password);
 
-		if (!doPasswordsMatch) {
-			const error = new Error("Credentials do not match!");
+    if (!doPasswordsMatch) {
+      const error = new Error("Credentials do not match!");
 
-			error.statusCode = 404;
+      error.statusCode = 404;
 
-			throw error;
-		}
+      throw error;
+    }
 
-		const jwt = require("jsonwebtoken");
+    const jwt = require("jsonwebtoken");
 
-		const token = jwt.sign(
-			{ email: email, userId: user.id.toString() },
-			process.env.JSON_WEB_TOKEN_SECRET_KEY,
-			{
-				expiresIn: "5h",
-			},
-		);
+    const token = jwt.sign(
+      { email: email, userId: user.id.toString() },
+      process.env.JSON_WEB_TOKEN_SECRET_KEY,
+      {
+        expiresIn: "5h",
+      },
+    );
 
-		const response = {
-			message: "User is authenticated!",
-			token: token,
-			user: user,
-		};
+    const response = {
+      message: "User is authenticated!",
+      token: token,
+      user: user,
+    };
 
-		console.log(response);
-
-		res.status(200).send(response);
-	} catch (err) {
-		next(err);
-	}
+    res.status(200).send(response);
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.signup = async (req, res, next) => {
-	const errors = validationResult(req);
+  const errors = validationResult(req);
 
-	if (!errors.isEmpty()) {
-		const error = new Error(errors.array()[0].msg);
+  if (!errors.isEmpty()) {
+    const error = new Error(errors.array()[0].msg);
 
-		error.statusCode = 422;
+    error.statusCode = 422;
 
-		next(error);
+    next(error);
 
-		return;
-	}
+    return;
+  }
 
-	const userData = req.body;
+  const userData = req.body;
 
-	try {
-		const hashedPassword = await bcrypt.hash(userData.password, 12);
+  try {
+    const hashedPassword = await bcrypt.hash(userData.password, 12);
 
-		userData.password = hashedPassword;
+    userData.password = hashedPassword;
 
-		const user = new User({ ...userData });
+    const user = new User({ ...userData });
 
-		await user.save();
+    await user.save();
 
-		res.status(201).send({ message: "User was created.", user: user });
-	} catch (err) {
-		const newError = new Error("Failed to create User.");
+    res.status(201).send({ message: "User was created.", user: user });
+  } catch (err) {
+    const newError = new Error("Failed to create User.");
 
-		next(newError);
-	}
+    next(newError);
+  }
 };

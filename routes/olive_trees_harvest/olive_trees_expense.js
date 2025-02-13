@@ -7,33 +7,40 @@ const oliveTreesExpenseController = require("../../controllers/olive_trees_harve
 const isAuth = require("../../middlewares/isAuth");
 
 router.get(
-	"/:userId/:harvestId/:expenseId",
-	isAuth,
-	oliveTreesExpenseController.getSingleOliveTreesExpense,
+  "/:userId/:harvestId",
+  isAuth,
+  oliveTreesExpenseController.getOliveTreesExpenses,
 );
 
 router.get(
-	"/:userId/:harvestId",
-	isAuth,
-	oliveTreesExpenseController.getOliveTreesExpenses,
+  "/:userId/:harvestId/:expenseId",
+  isAuth,
+  oliveTreesExpenseController.getSingleOliveTreesExpense,
 );
 
 router.post(
-	"/addNewOliveTreesExpense",
-	isAuth,
-	oliveTreesExpenseController.addNewOliveTreesExpense,
+  "/addNewOliveTreesExpense",
+  isAuth,
+  oliveTreesExpenseController.addNewOliveTreesExpense,
 );
 
 router.put(
-	"/updateOliveTreesExpense",
-	isAuth,
-	oliveTreesExpenseController.updateSingleOliveTreesExpense,
+  "/updateOliveTreesExpense",
+  isAuth,
+  oliveTreesExpenseController.updateSingleOliveTreesExpense,
 );
 
 router.delete(
-	"/deleteOliveTreesExpense/:userId/:harvestId/:expenseId",
-	isAuth,
-	oliveTreesExpenseController.deleteSingleOliveTreesExpense,
+  "/deleteOliveTreesExpense/:userId/:harvestId/:expenseId",
+  isAuth,
+  oliveTreesExpenseController.deleteSingleOliveTreesExpense,
 );
+
+// to-do: implement controller 
+//router.delete(
+//  "/deleteOliveTreesExpenses/:userId/:harvestId",
+//  isAuth,
+//  oliveTreesExpenseController.deleteSingleOliveTreesExpense,
+//);
 
 module.exports = router;
