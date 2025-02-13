@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const { User } = require("../../models/user");
 
 exports.login = async (req, res, next) => {
+	console.log(req.body);
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -54,6 +55,8 @@ exports.login = async (req, res, next) => {
 			token: token,
 			user: user,
 		};
+
+		console.log(response);
 
 		res.status(200).send(response);
 	} catch (err) {
