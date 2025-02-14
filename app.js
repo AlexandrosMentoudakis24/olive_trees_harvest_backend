@@ -9,6 +9,7 @@ const oliveTreesHarvestRoutes = require("./routes/olive_trees_harvest/olive_tree
 
 const oliveTreesExpensesRoutes = require("./routes/olive_trees_harvest/olive_trees_expense");
 const oliveMillingsRoutes = require("./routes/olive_trees_harvest/olive_milling");
+const oliveSellingsRoutes = require("./routes/olive_trees_harvest/olive_selling");
 
 const corsConfiguration = require("./middlewares/cors_configuration");
 
@@ -36,6 +37,7 @@ expressApp.use("/oliveTreesHarvests", oliveTreesHarvestRoutes);
 expressApp.use("/oliveTreesExpenses", oliveTreesExpensesRoutes);
 
 expressApp.use("/oliveMillings", oliveMillingsRoutes);
+expressApp.use("/oliveSellings", oliveSellingsRoutes);
 
 expressApp.use((error, req, res, next) => {
 	const status = error.statusCode || 500;

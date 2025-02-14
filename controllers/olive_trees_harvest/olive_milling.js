@@ -1,70 +1,84 @@
 const {
-  OliveMillingModel,
+	OliveMillingModel,
 } = require("../../models/olive_trees_harvest/olive_milling");
-const { User } = require("../../models/user");
+const getUserAndItsHarvest = require("./olive_trees_harvest_helper_functions");
 
 exports.addNewOliveMilling = async (req, res, next) => {
-  const { userId, oliveTreesHarvestId } = req.body;
+	const { userId, harvestId } = req.body;
 
-  try {
-    const user = await User.findById(userId);
+	try {
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-    const oliveTreesHarvest = user.oliveTreesHarvests.id(oliveTreesHarvestId);
+		const {
+			factoryName,
+			oliveFruitAmount,
+			oliveAmount,
+			factoryTaxRate,
+			oxidity,
+		} = req.body;
 
-    const {
-      factoryName,
-      oliveFruitAmount,
-      oliveAmount,
-      factoryTaxRate,
-      oxidity,
-    } = req.body;
+		const newOliveMilling = new OliveMillingModel({
+			factoryName,
+			oliveFruitAmount,
+			oliveAmount,
+			factoryTaxRate,
+			oxidity,
+		});
 
-    const newOliveMilling = new OliveMillingModel({
-      factoryName,
-      oliveFruitAmount,
-      oliveAmount,
-      factoryTaxRate,
-      oxidity,
-    });
+		harvest.millings.push(newOliveMilling);
+		harvest.totalMillings += 1;
+		harvest.totalOliveFruitAmount += newOliveMilling.oliveFruitAmount;
+		harvest.totalRealOliveAmount += newOliveMilling.oliveAmount;
+		harvest.totalAvailableOliveAmount += calcOliveMillingsAfterTaxedOlive(
+			newOliveMilling.oliveAmount,
+			newOliveMilling.factoryTaxRate,
+		);
 
-    oliveTreesHarvest.millings.push(newOliveMilling);
-    oliveTreesHarvest.totalMillings += 1;
-    oliveTreesHarvest.totalOliveFruitAmount += newOliveMilling.oliveFruitAmount;
-    oliveTreesHarvest.totalOliveAmount += newOliveMilling.oliveAmount;
-    oliveTreesHarvest.totalAvailableOliveAmount +=
-      newOliveMilling.oliveAmount -
-      newOliveMilling.factoryTaxRate * newOliveMilling.oliveAmount;
+		await user.save();
 
-    await user.save();
-
-    res.send({
-      message: "Olive Milling added!",
-      oliveMilling: newOliveMilling,
-    });
-  } catch (err) {
-    err.message = "Failed to find User!";
-
-    next(err);
-  }
+		res.status(201).send({
+			message: "Olive Milling added!",
+			oliveMilling: newOliveMilling,
+		});
+	} catch (err) {
+		next(err);
+	}
 };
 
 exports.deleteOliveMilling = async (req, res, next) => {
-  const { userId, oliveTreesHarvestId, oliveMillingId } = req.body;
+	const { userId, harvestId, oliveMillingId } = req.params;
 
-  try {
-    const user = await User.findById(userId);
+	try {
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-    user.oliveTreesHarvests
-      .id(oliveTreesHarvestId)
-      .millings.id(oliveMillingId)
-      .deleteOne();
+		const oliveMilling = harvest.millings.id(oliveMillingId);
 
-    await user.save();
+		if (!oliveMilling) {
+			throw new Error("Failed to find Olive Milling.");
+		}
 
-    res.send({ message: "Olive Milling deleted.", statusCode: 200 });
-  } catch (err) {
-    err.message = "Failed to delete milling.";
+		oliveMilling.deleteOne();
 
-    next(err);
-  }
+		if (!oliveMilling.$isDeleted) {
+			throw new Error("Failed to delete Olive Milling");
+		}
+
+		harvest.totalMillings -= 1;
+		harvest.totalOliveFruitAmount -= oliveMilling.oliveFruitAmount;
+		harvest.totalRealOliveAmount -= oliveMilling.oliveAmount;
+		harvest.totalAvailableOliveAmount -= calcOliveMillingsAfterTaxedOlive(
+			oliveMilling.oliveAmount,
+			oliveMilling.factoryTaxRate,
+		);
+
+		await user.save();
+
+		res.status(200).send({ message: "Olive Milling deleted." });
+	} catch (err) {
+		next(err);
+	}
+};
+
+const calcOliveMillingsAfterTaxedOlive = (oliveAmount, taxRate) => {
+	return oliveAmount - oliveAmount * taxRate;
 };

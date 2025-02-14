@@ -1,64 +1,77 @@
 const {
-	OliveMillingModel,
-} = require("../../models/olive_trees_harvest/olive_milling");
-const { User } = require("../../models/user");
+	OliveSellingModel,
+} = require("../../models/olive_trees_harvest/olive_selling");
+const getUserAndItsHarvest = require("./olive_trees_harvest_helper_functions");
 
-exports.addNewOliveMilling = async (req, res, next) => {
-	const { userId, oliveTreesHarvestId } = req.body;
+exports.addNewOliveSelling = async (req, res, next) => {
+	const { userId, harvestId } = req.body;
 
 	try {
-		const user = await User.findById(userId);
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const oliveTreesHarvest = user.oliveTreesHarvests.id(oliveTreesHarvestId);
+		const { oliveAmount, sellingPrice } = req.body;
 
-		const {
-			factoryName,
-			oliveFruitAmount,
+		if (harvest.totalAvailableOliveAmount - oliveAmount < 0.0) {
+			throw new Error("Insufficient Olive Amount.");
+		}
+
+		const newOliveSelling = new OliveSellingModel({
 			oliveAmount,
-			factoryTaxRate,
-			oxidity,
-		} = req.body;
-
-		const newOliveMilling = new OliveMillingModel({
-			factoryName,
-			oliveFruitAmount,
-			oliveAmount,
-			factoryTaxRate,
-			oxidity,
+			sellingPrice,
 		});
 
-		oliveTreesHarvest.millings.push(newOliveMilling);
+		const totalCalcProfit =
+			newOliveSelling.oliveAmount * newOliveSelling.sellingPrice;
+
+		harvest.sellings.push(newOliveSelling);
+		harvest.totalSellings += 1;
+		harvest.totalAvailableOliveAmount -= newOliveSelling.oliveAmount;
+		harvest.totalProfit += totalCalcProfit;
+		harvest.totalIncome += totalCalcProfit;
 
 		await user.save();
 
-		res.send({
-			message: "Olive Milling added!",
-			oliveMilling: newOliveMilling,
+		res.status(201).send({
+			message: "Olive Selling added!",
+			oliveSelling: newOliveSelling,
 		});
 	} catch (err) {
-		err.message = "Failed to find User!";
-
 		next(err);
 	}
 };
 
-exports.deleteOliveMilling = async (req, res, next) => {
-	const { userId, oliveTreesHarvestId, oliveMillingId } = req.body;
+exports.deleteOliveSelling = async (req, res, next) => {
+	const { userId, harvestId, oliveSellingId } = req.params;
 
 	try {
-		const user = await User.findById(userId);
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		user.oliveTreesHarvests
-			.id(oliveTreesHarvestId)
-			.millings.id(oliveMillingId)
-			.deleteOne();
+		const oliveSelling = harvest.sellings.id(oliveSellingId);
+
+		if (!oliveSelling) {
+			throw new Error("Failed to find Olive Selling.");
+		}
+
+		oliveSelling.deleteOne();
+
+		if (!oliveSelling.$isDeleted) {
+			throw new Error("Failed to delete Olive Selling");
+		}
+
+		const totalCalcProfit =
+			oliveSelling.oliveAmount * oliveSelling.sellingPrice;
+
+		harvest.totalSellings -= 1;
+		harvest.totalAvailableOliveAmount += oliveSelling.oliveAmount;
+		harvest.totalProfit -= totalCalcProfit;
+		harvest.totalIncome -= totalCalcProfit;
 
 		await user.save();
 
-		res.send({ message: "Olive Milling deleted.", statusCode: 200 });
+		res.status(200).send({
+			message: "Olive Selling added!",
+		});
 	} catch (err) {
-		err.message = "Failed to delete milling.";
-
 		next(err);
 	}
 };

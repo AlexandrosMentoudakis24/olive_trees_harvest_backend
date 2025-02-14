@@ -12,7 +12,7 @@ router.post(
 );
 
 router.delete(
-	"/deleteOliveMilling",
+	"/deleteOliveMilling/:userId/:harvestId/:oliveMillingId",
 	isAuth,
 	oliveMillingController.deleteOliveMilling,
 );
