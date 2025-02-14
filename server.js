@@ -1,15 +1,21 @@
 require("dotenv").config();
 
 const app = require("./app");
-
 const { initMongoDB } = require("./services/db");
 
-const serverPort = process.env.SERVER_CONNECTION_PORT;
-
-initMongoDB().then((isDBInitialized) => {
-	if (!isDBInitialized) {
+// Initialize MongoDB, but DO NOT block the export
+initMongoDB()
+	.then((isDBInitialized) => {
+		if (!isDBInitialized) {
+			console.error("MongoDB initialization failed. Exiting...");
+			process.exit(1);
+		} else {
+			console.log("✅ MongoDB Connected Successfully");
+		}
+	})
+	.catch((err) => {
+		console.error("Error connecting to MongoDB:", err);
 		process.exit(1);
-	}
+	});
 
-	module.exports = app;
-});
+module.exports = app;
