@@ -11,7 +11,5 @@ initMongoDB().then((isDBInitialized) => {
 		process.exit(1);
 	}
 
-	app.listen(serverPort, () => {
-		console.log("Server is running on Port: ", serverPort);
-	});
+	module.exports = app;
 });
