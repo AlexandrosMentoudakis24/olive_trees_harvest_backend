@@ -12,16 +12,19 @@ const oliveMillingsRoutes = require("./routes/olive_trees_harvest/olive_milling"
 const oliveSellingsRoutes = require("./routes/olive_trees_harvest/olive_selling");
 
 const corsConfiguration = require("./middlewares/cors_configuration");
+const { User } = require("./models/user");
 
 expressApp.use(bodyParser.json({ limit: "100mb" }));
 expressApp.use(bodyParser.urlencoded({ extended: true }));
 
 expressApp.use(corsConfiguration);
 
-expressApp.get("/hello", (req, res, next) => {
+expressApp.get("/hello", async (req, res, next) => {
 	console.log("Test was successful.");
 
-	res.status(200).send({ message: "Hello world!" });
+	const users = await User.find();
+
+	res.status(200).send({ message: "Test Request worked.", user: users[0] });
 });
 
 expressApp.post("/demo", (req, res, next) => {
