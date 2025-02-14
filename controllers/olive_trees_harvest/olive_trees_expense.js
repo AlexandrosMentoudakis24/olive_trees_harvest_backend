@@ -58,12 +58,27 @@ exports.addNewOliveTreesExpense = async (req, res, next) => {
 	const { userId, harvestId } = req.body;
 
 	try {
+		if (!req.file) {
+			console.log("error");
+			const error = new Error("No image provided!");
+
+			error.statusCode = 422;
+
+			next(error);
+
+			return;
+		}
+
 		const { user, harvest } = await getUsersOliveTreesExpenses(
 			userId,
 			harvestId,
 		);
 
-		const newExpense = await saveSingleExpense(harvest, req.body, false);
+		const newExpense = await saveSingleExpense(
+			harvest,
+			req.body,
+			req.file.path,
+		);
 
 		harvest.totalProfit -= newExpense.costAmount;
 		harvest.totalExpenses += newExpense.costAmount;
@@ -91,7 +106,7 @@ exports.updateSingleOliveTreesExpense = async (req, res, next) => {
 			harvestId,
 		);
 
-		const expense = await saveSingleExpense(harvest, req.body, false);
+		const expense = await saveSingleExpense(harvest, req.body, req.file.path);
 
 		await user.save();
 
@@ -163,9 +178,10 @@ const getUsersOliveTreesExpenses = async (userId, harvestId) => {
 	};
 };
 
-const saveSingleExpense = async (harvest, newExpenseInfos) => {
+const saveSingleExpense = async (harvest, newExpenseInfos, imageFilePath) => {
 	try {
 		const { expenseId, description, expenseType, costAmount } = newExpenseInfos;
+		const imageUrlPath = imageFilePath.replaceAll("\\", "/");
 
 		const formattedExpenseType = ExpenseTypes[expenseType];
 
@@ -176,6 +192,7 @@ const saveSingleExpense = async (harvest, newExpenseInfos) => {
 				description: description,
 				expenseType: formattedExpenseType,
 				costAmount: costAmount,
+				imageUrlPath: imageUrlPath,
 			});
 
 			harvest.expenses.push(expense);

@@ -23,6 +23,10 @@ const oliveTreesExpenseSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		imageUrlPath: {
+			type: String,
+			default: "",
+		},
 		createdAt: {
 			type: Date,
 			default: Date.now,
