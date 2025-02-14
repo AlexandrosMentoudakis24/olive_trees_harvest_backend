@@ -19,6 +19,8 @@ expressApp.use(bodyParser.urlencoded({ extended: true }));
 expressApp.use(corsConfiguration);
 
 expressApp.get("/hello", (req, res, next) => {
+	console.log("Test was successful.");
+
 	res.status(200).send({ message: "Hello world!" });
 });
 
