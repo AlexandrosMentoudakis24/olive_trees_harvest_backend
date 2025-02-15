@@ -26,12 +26,15 @@ exports.getOliveTreesHarvests = async (req, res, next) => {
 };
 
 exports.addNewOliveTreesHarvest = async (req, res, next) => {
-	const { userId, title } = req.body;
+	const { userId, title, createdAt } = req.body;
 
 	try {
 		const user = await User.findById(userId);
 
-		const newOliveTreesHarvest = new OliveTreesHarvestModel({ title });
+		const newOliveTreesHarvest = new OliveTreesHarvestModel({
+			title,
+			createdAt,
+		});
 
 		user.oliveTreesHarvests.push(newOliveTreesHarvest);
 

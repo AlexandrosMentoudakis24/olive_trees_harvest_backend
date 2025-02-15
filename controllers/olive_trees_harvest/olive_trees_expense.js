@@ -38,7 +38,7 @@ exports.getOliveTreesExpenses = async (req, res, next) => {
 	try {
 		const { harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const expenses = harvest.expenses.sort({ createdAt: -1 });
+		const expenses = harvest.expenses;
 
 		if (!expenses) {
 			throw new Error("Failed to find Olive Trees Expenses.");
@@ -109,10 +109,7 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 	const { userId, harvestId, expenseId } = req.params;
 
 	try {
-		const { user, harvest } = await getUsersOliveTreesExpenses(
-			userId,
-			harvestId,
-		);
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
 		const expense = harvest.expenses.id(expenseId);
 
@@ -126,11 +123,14 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 			throw new Error("Failed to delete Olive Trees Expense");
 		}
 
-		fs.unlink(expense.imageUrlPath, (err) => {
-			if (err) {
-				throw new Error("Failed to delete Image File.");
-			}
-		});
+		const hasImageFile = expense.imageUrlPath.trim().length > 1;
+
+		if (hasImageFile)
+			fs.unlink(expense.imageUrlPath, (err) => {
+				if (err) {
+					throw new Error("Failed to delete Image File.");
+				}
+			});
 
 		harvest.totalProfit += expense.costAmount;
 		harvest.totalExpenses -= expense.costAmount;
@@ -149,7 +149,8 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 
 const saveSingleExpense = async (harvest, newExpenseInfos, imageUrlPath) => {
 	try {
-		const { expenseId, description, expenseType, costAmount } = newExpenseInfos;
+		const { expenseId, description, expenseType, costAmount, createdAt } =
+			newExpenseInfos;
 
 		const formattedExpenseType = ExpenseTypes[expenseType];
 
@@ -161,6 +162,7 @@ const saveSingleExpense = async (harvest, newExpenseInfos, imageUrlPath) => {
 				expenseType: formattedExpenseType,
 				costAmount: costAmount,
 				imageUrlPath: imageUrlPath,
+				createdAt: createdAt,
 			});
 
 			harvest.expenses.push(expense);

@@ -28,8 +28,8 @@ const oliveTreesExpenseSchema = new mongoose.Schema(
 			default: "",
 		},
 		createdAt: {
-			type: Date,
-			default: Date.now,
+			type: String,
+			required: true,
 		},
 		updatedAt: {
 			type: Date,
@@ -52,10 +52,6 @@ const oliveTreesExpenseSchema = new mongoose.Schema(
 		},
 	},
 );
-
-oliveTreesExpenseSchema.pre("find", () => {
-	this.sort({ createdAt: -1 });
-});
 
 const OliveTreesExpenseModel = mongoose.model(
 	"olivetreesexpense",

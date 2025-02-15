@@ -15,8 +15,8 @@ const oliveSellingSchema = new mongoose.Schema(
 			default: "",
 		},
 		createdAt: {
-			type: Date,
-			default: Date.now,
+			type: String,
+			required: true,
 		},
 		updatedAt: {
 			type: Date,
@@ -39,10 +39,6 @@ const oliveSellingSchema = new mongoose.Schema(
 		},
 	},
 );
-
-oliveSellingSchema.pre("find", () => {
-	this.sort({ createdAt: -1 });
-});
 
 const OliveSellingModel = mongoose.model("oliveselling", oliveSellingSchema);
 

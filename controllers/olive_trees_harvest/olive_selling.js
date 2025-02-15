@@ -14,7 +14,7 @@ exports.addNewOliveSelling = async (req, res, next) => {
 
 		const imageUrlPath = validateImageInRequest(req, hasImage);
 
-		const { oliveAmount, sellingPrice } = req.body;
+		const { oliveAmount, sellingPrice, createdAt } = req.body;
 
 		if (harvest.totalAvailableOliveAmount - oliveAmount < 0.0) {
 			throw new Error("Insufficient Olive Amount.");
@@ -24,6 +24,7 @@ exports.addNewOliveSelling = async (req, res, next) => {
 			oliveAmount,
 			sellingPrice,
 			imageUrlPath,
+			createdAt,
 		});
 
 		const totalCalcProfit =

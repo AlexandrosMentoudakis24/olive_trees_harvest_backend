@@ -20,6 +20,7 @@ exports.addNewOliveMilling = async (req, res, next) => {
 			oliveAmount,
 			factoryTaxRate,
 			oxidity,
+			createdAt,
 		} = req.body;
 
 		const newOliveMilling = new OliveMillingModel({
@@ -29,6 +30,7 @@ exports.addNewOliveMilling = async (req, res, next) => {
 			factoryTaxRate,
 			oxidity,
 			imageUrlPath,
+			createdAt,
 		});
 
 		harvest.millings.push(newOliveMilling);

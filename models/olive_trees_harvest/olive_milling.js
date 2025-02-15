@@ -27,6 +27,10 @@ const oliveMillingSchema = new mongoose.Schema(
 			default: "",
 		},
 		createdAt: {
+			type: String,
+			required: true,
+		},
+		updatedAt: {
 			type: Date,
 			default: Date.now,
 		},
@@ -47,10 +51,6 @@ const oliveMillingSchema = new mongoose.Schema(
 		},
 	},
 );
-
-oliveMillingSchema.pre("find", () => {
-	this.sort({ createdAt: -1 });
-});
 
 const OliveMillingModel = mongoose.model("olivemilling", oliveMillingSchema);
 
