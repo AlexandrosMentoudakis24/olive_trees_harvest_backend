@@ -10,6 +10,10 @@ const oliveSellingSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		imageUrlPath: {
+			type: String,
+			default: "",
+		},
 		createdAt: {
 			type: Date,
 			default: Date.now,
@@ -35,6 +39,10 @@ const oliveSellingSchema = new mongoose.Schema(
 		},
 	},
 );
+
+oliveSellingSchema.pre("find", () => {
+	this.sort({ createdAt: -1 });
+});
 
 const OliveSellingModel = mongoose.model("oliveselling", oliveSellingSchema);
 

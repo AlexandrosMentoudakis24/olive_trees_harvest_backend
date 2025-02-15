@@ -1,4 +1,6 @@
 node_modules
 dev_server.js
+/images/oliveTreesExpenseImages/
+!/images/oliveTreesExpenseImages/.gitkeep
 .env
 .vercel

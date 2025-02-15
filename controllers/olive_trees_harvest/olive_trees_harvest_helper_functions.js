@@ -19,4 +19,18 @@ const getUserAndItsHarvest = async (userId, harvestId) => {
 	};
 };
 
-module.exports = getUserAndItsHarvest;
+const validateImageInRequest = (req, hasImage) => {
+	console.log(req.file);
+
+	if (hasImage && !req.file) {
+		const error = new Error("No image provided!");
+
+		error.statusCode = 422;
+
+		throw error;
+	}
+
+	return hasImage ? req.file.path.replaceAll("\\", "/") : "";
+};
+
+module.exports = { getUserAndItsHarvest, validateImageInRequest };

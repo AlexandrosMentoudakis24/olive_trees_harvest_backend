@@ -87,6 +87,7 @@ exports.signup = async (req, res, next) => {
 
 		res.status(201).send({ message: "User was created.", user: user });
 	} catch (err) {
+		console.log(err);
 		const newError = new Error("Failed to create User.");
 
 		next(newError);

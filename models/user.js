@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
 		},
 		imageUrlPath: {
 			type: String,
-			required: true,
+			default: "",
 		},
 		oliveTreesHarvests: {
 			type: [oliveTreesHarvestSchema],

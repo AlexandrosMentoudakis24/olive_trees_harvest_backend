@@ -24,13 +24,11 @@ const fileStorage = multer.diskStorage({
 				cb(null, "images/oliveSellingImages");
 				break;
 			default:
-				console.log("multer");
-				cb(null, "images/random");
 				break;
 		}
 	},
 	filename: (req, file, cb) => {
-		const imageFileName = "img_" + uuidv4();
+		const imageFileName = "img_" + uuidv4() + "_" + file.originalname;
 
 		cb(null, imageFileName);
 	},

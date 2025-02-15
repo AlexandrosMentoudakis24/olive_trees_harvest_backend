@@ -22,6 +22,10 @@ const oliveMillingSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		imageUrlPath: {
+			type: String,
+			default: "",
+		},
 		createdAt: {
 			type: Date,
 			default: Date.now,
@@ -43,6 +47,10 @@ const oliveMillingSchema = new mongoose.Schema(
 		},
 	},
 );
+
+oliveMillingSchema.pre("find", () => {
+	this.sort({ createdAt: -1 });
+});
 
 const OliveMillingModel = mongoose.model("olivemilling", oliveMillingSchema);
 

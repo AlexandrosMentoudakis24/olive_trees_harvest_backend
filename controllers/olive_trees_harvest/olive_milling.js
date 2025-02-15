@@ -1,13 +1,18 @@
 const {
 	OliveMillingModel,
 } = require("../../models/olive_trees_harvest/olive_milling");
-const getUserAndItsHarvest = require("./olive_trees_harvest_helper_functions");
+const {
+	getUserAndItsHarvest,
+	validateImageInRequest,
+} = require("./olive_trees_harvest_helper_functions");
 
 exports.addNewOliveMilling = async (req, res, next) => {
-	const { userId, harvestId } = req.body;
+	const { userId, harvestId, hasImage } = req.body;
 
 	try {
 		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
+
+		const imageUrlPath = validateImageInRequest(req, hasImage);
 
 		const {
 			factoryName,
@@ -23,6 +28,7 @@ exports.addNewOliveMilling = async (req, res, next) => {
 			oliveAmount,
 			factoryTaxRate,
 			oxidity,
+			imageUrlPath,
 		});
 
 		harvest.millings.push(newOliveMilling);

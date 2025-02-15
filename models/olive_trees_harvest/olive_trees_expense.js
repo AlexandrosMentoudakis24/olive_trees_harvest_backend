@@ -53,6 +53,10 @@ const oliveTreesExpenseSchema = new mongoose.Schema(
 	},
 );
 
+oliveTreesExpenseSchema.pre("find", () => {
+	this.sort({ createdAt: -1 });
+});
+
 const OliveTreesExpenseModel = mongoose.model(
 	"olivetreesexpense",
 	oliveTreesExpenseSchema,

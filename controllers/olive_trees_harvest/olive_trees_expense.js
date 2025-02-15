@@ -1,17 +1,22 @@
+const fs = require("fs");
+
 const {
 	OliveTreesExpenseModel,
 	ExpenseTypes,
 } = require("../../models/olive_trees_harvest/olive_trees_expense");
 const { User } = require("../../models/user");
+const {
+	validateImageInRequest,
+	getUserAndItsHarvest,
+} = require("./olive_trees_harvest_helper_functions");
 
 exports.getSingleOliveTreesExpense = async (req, res, next) => {
 	const { userId, harvestId, expenseId } = req.params;
 
 	try {
-		const { harvest } = await getUsersOliveTreesExpenses(userId, harvestId);
+		const { harvest } = await getUserAndItsHarvest(userId, harvestId);
 
 		const expense = harvest.expenses.id(expenseId);
-
 		if (!expense) {
 			throw new Error("Failed to find Olive Trees Expense.");
 		}
@@ -23,8 +28,6 @@ exports.getSingleOliveTreesExpense = async (req, res, next) => {
 
 		res.status(200).send(response);
 	} catch (err) {
-		console.log(err);
-
 		next(err);
 	}
 };
@@ -33,9 +36,9 @@ exports.getOliveTreesExpenses = async (req, res, next) => {
 	const { userId, harvestId } = req.params;
 
 	try {
-		const { harvest } = await getUsersOliveTreesExpenses(userId, harvestId);
+		const { harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const expenses = harvest.expenses;
+		const expenses = harvest.expenses.sort({ createdAt: -1 });
 
 		if (!expenses) {
 			throw new Error("Failed to find Olive Trees Expenses.");
@@ -48,37 +51,19 @@ exports.getOliveTreesExpenses = async (req, res, next) => {
 
 		res.status(200).send(response);
 	} catch (err) {
-		console.log(err);
-
 		next(err);
 	}
 };
 
 exports.addNewOliveTreesExpense = async (req, res, next) => {
-	const { userId, harvestId } = req.body;
+	const { userId, harvestId, hasImage } = req.body;
 
 	try {
-		if (!req.file) {
-			console.log("error");
-			const error = new Error("No image provided!");
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-			error.statusCode = 422;
+		const reqFilePath = validateImageInRequest(req, hasImage);
 
-			next(error);
-
-			return;
-		}
-
-		const { user, harvest } = await getUsersOliveTreesExpenses(
-			userId,
-			harvestId,
-		);
-
-		const newExpense = await saveSingleExpense(
-			harvest,
-			req.body,
-			req.file.path,
-		);
+		const newExpense = await saveSingleExpense(harvest, req.body, reqFilePath);
 
 		harvest.totalProfit -= newExpense.costAmount;
 		harvest.totalExpenses += newExpense.costAmount;
@@ -98,15 +83,14 @@ exports.addNewOliveTreesExpense = async (req, res, next) => {
 };
 
 exports.updateSingleOliveTreesExpense = async (req, res, next) => {
-	const { userId, harvestId } = req.body;
+	const { userId, harvestId, hasImage } = req.body;
 
 	try {
-		const { user, harvest } = await getUsersOliveTreesExpenses(
-			userId,
-			harvestId,
-		);
+		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const expense = await saveSingleExpense(harvest, req.body, req.file.path);
+		const reqFilePath = validateImageInRequest(req, hasImage);
+
+		const expense = await saveSingleExpense(harvest, req.body, reqFilePath);
 
 		await user.save();
 
@@ -117,8 +101,6 @@ exports.updateSingleOliveTreesExpense = async (req, res, next) => {
 
 		res.status(200).send(response);
 	} catch (err) {
-		console.log(err);
-
 		next(err);
 	}
 };
@@ -144,6 +126,12 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 			throw new Error("Failed to delete Olive Trees Expense");
 		}
 
+		fs.unlink(expense.imageUrlPath, (err) => {
+			if (err) {
+				throw new Error("Failed to delete Image File.");
+			}
+		});
+
 		harvest.totalProfit += expense.costAmount;
 		harvest.totalExpenses -= expense.costAmount;
 
@@ -159,29 +147,9 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 	}
 };
 
-const getUsersOliveTreesExpenses = async (userId, harvestId) => {
-	const user = await User.findById(userId);
-
-	if (!user) {
-		throw new Error("Failed to find User.");
-	}
-
-	const oliveTreesHarvest = user.oliveTreesHarvests.id(harvestId);
-
-	if (!oliveTreesHarvest) {
-		throw new Error("Failed to Olive Trees Harvest.");
-	}
-
-	return {
-		user: user,
-		harvest: oliveTreesHarvest,
-	};
-};
-
-const saveSingleExpense = async (harvest, newExpenseInfos, imageFilePath) => {
+const saveSingleExpense = async (harvest, newExpenseInfos, imageUrlPath) => {
 	try {
 		const { expenseId, description, expenseType, costAmount } = newExpenseInfos;
-		const imageUrlPath = imageFilePath.replaceAll("\\", "/");
 
 		const formattedExpenseType = ExpenseTypes[expenseType];
 
@@ -210,8 +178,6 @@ const saveSingleExpense = async (harvest, newExpenseInfos, imageFilePath) => {
 
 		return foundExpense;
 	} catch (err) {
-		console.log(err);
-
 		throw new Error("Failed to save Olive Trees Expense.");
 	}
 };

@@ -1,13 +1,18 @@
 const {
 	OliveSellingModel,
 } = require("../../models/olive_trees_harvest/olive_selling");
-const getUserAndItsHarvest = require("./olive_trees_harvest_helper_functions");
+const {
+	getUserAndItsHarvest,
+	validateImageInRequest,
+} = require("./olive_trees_harvest_helper_functions");
 
 exports.addNewOliveSelling = async (req, res, next) => {
-	const { userId, harvestId } = req.body;
+	const { userId, harvestId, hasImage } = req.body;
 
 	try {
 		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
+
+		const imageUrlPath = validateImageInRequest(req, hasImage);
 
 		const { oliveAmount, sellingPrice } = req.body;
 
@@ -18,6 +23,7 @@ exports.addNewOliveSelling = async (req, res, next) => {
 		const newOliveSelling = new OliveSellingModel({
 			oliveAmount,
 			sellingPrice,
+			imageUrlPath,
 		});
 
 		const totalCalcProfit =
