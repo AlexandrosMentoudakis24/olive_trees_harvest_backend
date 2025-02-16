@@ -1,5 +1,3 @@
-const fs = require("fs");
-
 const {
 	OliveTreesExpenseModel,
 	ExpenseTypes,
@@ -117,15 +115,6 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 		if (!expense.$isDeleted) {
 			throw new Error("Failed to delete Olive Trees Expense");
 		}
-
-		const hasImageFile = expense.imageUrlPath.trim().length > 1;
-
-		if (hasImageFile)
-			fs.unlink(expense.imageUrlPath, (err) => {
-				if (err) {
-					throw new Error("Failed to delete Image File.");
-				}
-			});
 
 		harvest.totalProfit += expense.costAmount;
 		harvest.totalExpenses -= expense.costAmount;
