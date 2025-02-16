@@ -3,7 +3,6 @@ const {
 } = require("../../models/olive_trees_harvest/olive_selling");
 const {
 	getUserAndItsHarvest,
-	validateImageInRequest,
 } = require("./olive_trees_harvest_helper_functions");
 
 exports.addNewOliveSelling = async (req, res, next) => {
@@ -12,9 +11,7 @@ exports.addNewOliveSelling = async (req, res, next) => {
 	try {
 		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const imageUrlPath = validateImageInRequest(req, hasImage);
-
-		const { oliveAmount, sellingPrice, createdAt } = req.body;
+		const { oliveAmount, sellingPrice, imageUrlPath, createdAt } = req.body;
 
 		if (harvest.totalAvailableOliveAmount - oliveAmount < 0.0) {
 			throw new Error("Insufficient Olive Amount.");

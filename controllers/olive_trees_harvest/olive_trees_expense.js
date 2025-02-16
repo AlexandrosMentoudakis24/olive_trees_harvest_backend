@@ -6,7 +6,6 @@ const {
 } = require("../../models/olive_trees_harvest/olive_trees_expense");
 const { User } = require("../../models/user");
 const {
-	validateImageInRequest,
 	getUserAndItsHarvest,
 } = require("./olive_trees_harvest_helper_functions");
 
@@ -61,9 +60,7 @@ exports.addNewOliveTreesExpense = async (req, res, next) => {
 	try {
 		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const reqFilePath = validateImageInRequest(req, hasImage);
-
-		const newExpense = await saveSingleExpense(harvest, req.body, reqFilePath);
+		const newExpense = await saveSingleExpense(harvest, req.body);
 
 		harvest.totalProfit -= newExpense.costAmount;
 		harvest.totalExpenses += newExpense.costAmount;
@@ -88,9 +85,7 @@ exports.updateSingleOliveTreesExpense = async (req, res, next) => {
 	try {
 		const { user, harvest } = await getUserAndItsHarvest(userId, harvestId);
 
-		const reqFilePath = validateImageInRequest(req, hasImage);
-
-		const expense = await saveSingleExpense(harvest, req.body, reqFilePath);
+		const expense = await saveSingleExpense(harvest, req.body);
 
 		await user.save();
 
@@ -147,10 +142,16 @@ exports.deleteSingleOliveTreesExpense = async (req, res, next) => {
 	}
 };
 
-const saveSingleExpense = async (harvest, newExpenseInfos, imageUrlPath) => {
+const saveSingleExpense = async (harvest, newExpenseInfos) => {
 	try {
-		const { expenseId, description, expenseType, costAmount, createdAt } =
-			newExpenseInfos;
+		const {
+			expenseId,
+			description,
+			expenseType,
+			costAmount,
+			imageUrlPath,
+			createdAt,
+		} = newExpenseInfos;
 
 		const formattedExpenseType = ExpenseTypes[expenseType];
 

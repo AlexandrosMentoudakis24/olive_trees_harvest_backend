@@ -2,7 +2,6 @@ const {
 	OliveTreesHarvestModel,
 } = require("../../models/olive_trees_harvest/olive_trees_harvest");
 const { User } = require("../../models/user");
-const { login } = require("../auth/auth");
 
 exports.getOliveTreesHarvests = async (req, res, next) => {
 	const { userId } = req.params;
